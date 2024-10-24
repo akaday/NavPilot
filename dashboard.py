@@ -4,6 +4,8 @@ from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 import pandas as pd
 from flask import request, jsonify
+import matplotlib.pyplot as plt
+import time
 
 # Initialize the Dash app
 app = dash.Dash(__name__)
@@ -64,6 +66,36 @@ def update_sensor_data():
         for key, value in values.items():
             sensor_data[sensor][key].append(value)
     return jsonify({"status": "success"})
+
+class Dashboard:
+    def __init__(self, sensor_data):
+        self.sensor_data = sensor_data
+
+    def plot_gps_data(self):
+        latitudes = [data[0] for data in self.sensor_data]
+        longitudes = [data[1] for data in self.sensor_data]
+        
+        plt.figure(figsize=(10, 6))
+        plt.plot(longitudes, latitudes, marker='o', linestyle='-')
+        plt.title('GPS Data Plot')
+        plt.xlabel('Longitude')
+        plt.ylabel('Latitude')
+        plt.grid(True)
+        plt.show()
+
+    def update_live_data(self, new_data):
+        self.sensor_data.append(new_data)
+        self.plot_gps_data()
+
+# Example of live update usage
+if __name__ == "__main__":
+    sensor_data = [(34.0, -118.0), (35.0, -119.0)]
+    dashboard = Dashboard(sensor_data)
+
+    for _ in range(5):
+        new_data = (34.0 + 0.1 * _, -118.0 + 0.1 * _)
+        dashboard.update_live_data(new_data)
+        time.sleep(1)
 
 if __name__ == '__main__':
     app.run_server(debug=True)

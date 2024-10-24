@@ -83,3 +83,40 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+### Live GPS Data Plotting
+
+NavPilot now includes a feature for live GPS data plotting using the `Dashboard` class. This feature allows you to continuously plot GPS data in real-time.
+
+### Example Code
+
+Here's an example of how to use the `Dashboard` class with the `Autopilot` class:
+
+```python
+# navigation/autopilot.py
+
+from sensors.gps_sensor import GPSSensor
+from dashboard import Dashboard
+import time
+
+class Autopilot:
+    def __init__(self):
+        self.gps_sensor = GPSSensor()
+        self.dashboard = None
+
+    def start(self):
+        gps_data = [self.gps_sensor.get_coordinates() for _ in range(10)]
+        self.dashboard = Dashboard(gps_data)
+        self.dashboard.plot_gps_data()
+        
+        # Simulate live GPS data feed
+        for _ in range(10):
+            new_data = self.gps_sensor.get_coordinates()
+            self.dashboard.update_live_data(new_data)
+            time.sleep(1)
+
+# Running the autopilot
+if __name__ == "__main__":
+    autopilot = Autopilot()
+    autopilot.start()
+```
