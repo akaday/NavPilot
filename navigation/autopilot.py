@@ -2,6 +2,8 @@ import pandas as pd
 from .sensors import GPSSensor, IMUSensor, SonarSensor, RadarSensor, AISSensor, WindWeatherSensor
 import requests
 import json
+import time
+from dashboard import Dashboard
 
 class Autopilot:
     def __init__(self):
@@ -11,9 +13,19 @@ class Autopilot:
         self.radar_sensor = RadarSensor()
         self.ais_sensor = AISSensor()
         self.wind_weather_sensor = WindWeatherSensor()
+        self.dashboard = None
 
     def start(self):
         print("Autopilot started")
+        gps_data = [self.gps_sensor.get_coordinates() for _ in range(10)]
+        self.dashboard = Dashboard(gps_data)
+        self.dashboard.plot_gps_data()
+        
+        # Simulate live GPS data feed
+        for _ in range(10):
+            new_data = self.gps_sensor.get_coordinates()
+            self.dashboard.update_live_data(new_data)
+            time.sleep(1)
         self.print_sensor_data()
 
     def process_reel_data(self, file_path):
