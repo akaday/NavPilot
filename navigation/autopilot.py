@@ -1,5 +1,7 @@
 import pandas as pd
 from .sensors import GPSSensor, IMUSensor, SonarSensor, RadarSensor, AISSensor, WindWeatherSensor
+import requests
+import json
 
 class Autopilot:
     def __init__(self):
@@ -42,3 +44,14 @@ class Autopilot:
         sensor_data = self.gather_sensor_data()
         for sensor, data in sensor_data.items():
             print(f"{sensor} data: {data}")
+
+    def send_sensor_data_to_dashboard(self):
+        sensor_data = self.gather_sensor_data()
+        try:
+            response = requests.post('http://localhost:8050/update', json=sensor_data)
+            if response.status_code == 200:
+                print("Sensor data sent to dashboard successfully")
+            else:
+                print(f"Failed to send sensor data to dashboard: {response.status_code}")
+        except Exception as e:
+            print(f"Error sending sensor data to dashboard: {e}")
