@@ -45,6 +45,26 @@ NavPilot integrates several key sensors to enhance navigation and decision-makin
 - **AIS (Automatic Identification System)**: Tracks nearby ships and provides data like speed and heading.
 - **Wind and Weather Sensors**: Measures wind speed, direction, and weather conditions.
 
+## Real-time Data Visualization
+
+NavPilot now includes a real-time data visualization dashboard using Plotly Dash. This dashboard allows you to visualize sensor data in real-time, providing a comprehensive view of the ship's environment and status.
+
+### Running the Dashboard
+
+To run the real-time data visualization dashboard, follow these steps:
+
+1. Ensure that you have installed the required dependencies by running:
+    ```sh
+    pip install -r requirements.txt
+    ```
+
+2. Start the NavPilot system and the dashboard by running:
+    ```sh
+    python src/main.py
+    ```
+
+3. Open your web browser and navigate to `http://localhost:8050` to view the dashboard.
+
 ### Example Code
 
 Here's an example of how to use the integrated sensors with the `Autopilot` class:
