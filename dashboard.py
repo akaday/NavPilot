@@ -3,9 +3,11 @@ from dash import dcc, html
 from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 import pandas as pd
+from flask import request, jsonify
 
 # Initialize the Dash app
 app = dash.Dash(__name__)
+server = app.server
 
 # Create a layout with graphs for each sensor data type
 app.layout = html.Div([
@@ -23,6 +25,16 @@ app.layout = html.Div([
     )
 ])
 
+# Global variable to store sensor data
+sensor_data = {
+    "GPS": {"latitude": [], "longitude": []},
+    "IMU": {"acceleration": [], "rotation": []},
+    "Sonar": {"distance": []},
+    "Radar": {"obstacle_distance": []},
+    "AIS": {"speed": [], "heading": []},
+    "WindWeather": {"wind_speed": [], "wind_direction": []}
+}
+
 # Add a callback to update the graphs with new sensor data
 @app.callback(
     [Output('gps-graph', 'figure'),
@@ -34,22 +46,24 @@ app.layout = html.Div([
     [Input('interval-component', 'n_intervals')]
 )
 def update_graphs(n):
-    # Simulate sensor data
-    gps_data = {'latitude': [pd.Timestamp.now()], 'longitude': [pd.Timestamp.now()]}
-    imu_data = {'acceleration': [pd.Timestamp.now()], 'rotation': [pd.Timestamp.now()]}
-    sonar_data = {'distance': [pd.Timestamp.now()]}
-    radar_data = {'obstacle_distance': [pd.Timestamp.now()]}
-    ais_data = {'speed': [pd.Timestamp.now()], 'heading': [pd.Timestamp.now()]}
-    windweather_data = {'wind_speed': [pd.Timestamp.now()], 'wind_direction': [pd.Timestamp.now()]}
-
-    gps_fig = go.Figure(data=[go.Scatter(x=gps_data['latitude'], y=gps_data['longitude'], mode='lines+markers')])
-    imu_fig = go.Figure(data=[go.Scatter(x=imu_data['acceleration'], y=imu_data['rotation'], mode='lines+markers')])
-    sonar_fig = go.Figure(data=[go.Scatter(x=sonar_data['distance'], y=sonar_data['distance'], mode='lines+markers')])
-    radar_fig = go.Figure(data=[go.Scatter(x=radar_data['obstacle_distance'], y=radar_data['obstacle_distance'], mode='lines+markers')])
-    ais_fig = go.Figure(data=[go.Scatter(x=ais_data['speed'], y=ais_data['heading'], mode='lines+markers')])
-    windweather_fig = go.Figure(data=[go.Scatter(x=windweather_data['wind_speed'], y=windweather_data['wind_direction'], mode='lines+markers')])
+    gps_fig = go.Figure(data=[go.Scatter(x=sensor_data['GPS']['latitude'], y=sensor_data['GPS']['longitude'], mode='lines+markers')])
+    imu_fig = go.Figure(data=[go.Scatter(x=sensor_data['IMU']['acceleration'], y=sensor_data['IMU']['rotation'], mode='lines+markers')])
+    sonar_fig = go.Figure(data=[go.Scatter(x=sensor_data['Sonar']['distance'], y=sensor_data['Sonar']['distance'], mode='lines+markers')])
+    radar_fig = go.Figure(data=[go.Scatter(x=sensor_data['Radar']['obstacle_distance'], y=sensor_data['Radar']['obstacle_distance'], mode='lines+markers')])
+    ais_fig = go.Figure(data=[go.Scatter(x=sensor_data['AIS']['speed'], y=sensor_data['AIS']['heading'], mode='lines+markers')])
+    windweather_fig = go.Figure(data=[go.Scatter(x=sensor_data['WindWeather']['wind_speed'], y=sensor_data['WindWeather']['wind_direction'], mode='lines+markers')])
 
     return gps_fig, imu_fig, sonar_fig, radar_fig, ais_fig, windweather_fig
+
+# New route to handle sensor data updates
+@server.route('/update', methods=['POST'])
+def update_sensor_data():
+    global sensor_data
+    data = request.get_json()
+    for sensor, values in data.items():
+        for key, value in values.items():
+            sensor_data[sensor][key].append(value)
+    return jsonify({"status": "success"})
 
 if __name__ == '__main__':
     app.run_server(debug=True)

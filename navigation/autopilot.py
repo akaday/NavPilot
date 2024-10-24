@@ -32,12 +32,28 @@ class Autopilot:
         ais_data = self.ais_sensor.get_ship_data()
         wind_weather_data = self.wind_weather_sensor.get_wind_data()
         return {
-            "GPS": gps_data,
-            "IMU": imu_data,
-            "Sonar": sonar_data,
-            "Radar": radar_data,
-            "AIS": ais_data,
-            "WindWeather": wind_weather_data
+            "GPS": {
+                "latitude": gps_data[0],
+                "longitude": gps_data[1]
+            },
+            "IMU": {
+                "acceleration": imu_data[0],
+                "rotation": imu_data[1]
+            },
+            "Sonar": {
+                "distance": sonar_data
+            },
+            "Radar": {
+                "obstacle_distance": radar_data
+            },
+            "AIS": {
+                "speed": ais_data["speed"],
+                "heading": ais_data["heading"]
+            },
+            "WindWeather": {
+                "wind_speed": wind_weather_data[0],
+                "wind_direction": wind_weather_data[1]
+            }
         }
 
     def print_sensor_data(self):
